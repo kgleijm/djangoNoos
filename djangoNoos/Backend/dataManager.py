@@ -42,13 +42,14 @@ class TSDataManager:
         self.connection.commit()
 
     def getPlanks(self):
-        self.cursor.execute("SELECT * FROM tasks")
+        self.cursor.execute("SELECT * FROM plankconfigurations")
 
         rows = self.cursor.fetchall()
 
         for row in rows:
             print(row)
 
+        return rows
 
 
 # class DataManager:
