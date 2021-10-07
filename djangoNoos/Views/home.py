@@ -18,10 +18,14 @@ def getPage(request):
 
     plankList = []
     for plank in planks:
+        plankPercentages = None
+
         plankList.append(str(plank))
 
     contextJson = {'planks': plankList}
     context = Context(contextJson)
+
+
 
     return render(request, pageLocation, context=contextJson)
 

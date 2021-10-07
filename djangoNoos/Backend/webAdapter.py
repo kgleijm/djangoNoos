@@ -3,6 +3,24 @@ from threading import *
 from socket import *
 import copy
 
+zoneSeperationMatrix = [
+    [],
+    [0],
+    [0,4],
+    [0,3,5],
+    [0,2,4,6]
+]
+
+def getZone(x, calibrationDict):
+    zoneSeperationList = zoneSeperationMatrix[len(calibrationDict)]
+    if x == 0:
+        return 0
+    for i in range(len(zoneSeperationList)):
+        if x < zoneSeperationList[i]:
+            return i - 1
+    return i
+
+
 
 
 # The NoosAdapter is a threadWrapper responsible for listening on udp port 2311
@@ -75,7 +93,36 @@ class NoosPoint:
     # get calibrated matrix based on calibration profile
     def getCalibratedMatrix(self, calibrationDict):
         calibratedMatrix = copy.deepcopy(self.getMatrix())
-        # TODO write function
+        for y in range(len(calibratedMatrix)):
+            for x in range(len(calibratedMatrix[0])):
+                # figure out in which zone sensor reside
+                sensorZone = getZone(x, calibrationDict)
+
+                # get calibrated value
+                calibrationValue = calibrationDict[sensorZone]
+                val = calibratedMatrix[x][y]
+                val = min(val, calibrationValue)
+                newVal = (val / calibrationValue) * 100
+                calibratedMatrix[y][x] = newVal
+
+        return calibratedMatrix
+
+    # get values ready for display in bargraph
+    def getRowPercentages(self, calibrationDict):
+        calibratedMatrix = self.getCalibratedMatrix(calibrationDict)
+        # make list with len of n containing 0's ready for counting
+        percentageList = [0]*len(calibratedMatrix)
+
+        for y in range(len(calibratedMatrix)):
+            for x in range(len(calibratedMatrix[0])):
+                # figure out in which zone sensor reside
+                sensorZone = getZone(x, calibrationDict)
+                percentageList[sensorZone] += calibratedMatrix[y][x]
+        for i in range(len(percentageList)):
+            percentageList[i] = percentageList[i]/len(calibratedMatrix)
+
+        return percentageList
+
 
     # get sensors values as formatted string
     def getSensorValuesAsString(self):

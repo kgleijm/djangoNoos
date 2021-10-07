@@ -50,6 +50,14 @@ class TSDataManager:
 
         return rows
 
+    def getLatestSensorReadings(self):
+        sql = """
+        SELECT DISTINCT plankId, Max(Timestamp)
+        FROM noospoints
+        GROUP BY plankId
+        ORDER BY plankId, Timestamp desc
+        """
+
 
 
 
