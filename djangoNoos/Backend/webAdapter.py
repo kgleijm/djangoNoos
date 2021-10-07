@@ -1,7 +1,7 @@
 import json
 from threading import *
 from socket import *
-
+import copy
 
 
 
@@ -74,7 +74,7 @@ class NoosPoint:
 
     # get calibrated matrix based on calibration profile
     def getCalibratedMatrix(self, calibrationDict):
-        pass
+        calibratedMatrix = copy.deepcopy(self.getMatrix())
         # TODO write function
 
     # get sensors values as formatted string

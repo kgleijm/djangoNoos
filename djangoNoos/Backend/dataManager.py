@@ -1,6 +1,5 @@
 import sqlite3
 import random as r
-# from webAdapter import *
 
 
 noosPointTableCreationSql = "CREATE TABLE IF NOT EXISTS noospoints (" \
@@ -38,7 +37,7 @@ class TSDataManager:
 
     def addPlankIfUnknown(self, noosPointObject):
         sql = f"INSERT OR IGNORE INTO plankconfigurations (ID, product, calibrationjson) VALUES (?, ?, ?)"
-        self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", "Undefined"))
+        self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", "[350,350]"))
         self.connection.commit()
 
     def getPlanks(self):
@@ -52,32 +51,7 @@ class TSDataManager:
         return rows
 
 
-# class DataManager:
-#
-#     @staticmethod
-#     def insertNoosPoint(noosPointObject):
-#         print("ID in dataManager insert:", get_ident())
-#         sql = f'INSERT INTO noospoints(plankId, product, fillgrade, calibrationjson, rawSensorMatrix) VALUES(?,?,?,?,?)'
-#         cur.execute(sql, (noosPointObject.deviceEUI, "Undefined", f"[{int(r.random() * 100)},{int(r.random() * 100)}]", "None", str(noosPointObject.getMatrix())))
-#         con.commit()
-#
-#     @staticmethod
-#     def addPlankIfUnknown(noosPointObject):
-#         sql = f"INSERT OR IGNORE INTO plankconfigurations (ID, product, calibrationjson) VALUES (?, ?, ?)"
-#         cur.execute(sql, (noosPointObject.deviceEUI, "Undefined", "Undefined"))
-#         con.commit()
 
-
-
-
-# if __name__ == '__main__':
-#
-#
-#     # insert statement
-#     for i in range(100):
-#         sql = f'INSERT INTO noospoints(plankId, product, fillgrade, calibrationjson) VALUES(?,?,?,?)'
-#         cur.execute(sql, ("TestID", "TestProduct", int(r.random()*100), "None"))
-#         con.commit()
 
 
 

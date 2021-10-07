@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .noosWidgetHome{
+            background-color: #D6E0EB;
+            border-radius: 25px;
+            padding: 8px;
+            margin: 5px;
+            display: inline-block;
+        }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% for plank in planks %}
+        <div class="noosWidgetHome"><img src="Images/py.png"><br>{{plank}}</div>
+    {% endfor %}
+</body>
+</html>
