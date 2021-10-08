@@ -17,12 +17,18 @@ def getPage(request):
     pageLocation = "overview.html"
 
     plankList = []
+    imgUrlList = []
+    IDList = []
     for plank in planks:
         plankPercentages = None
 
         plankList.append(str(plank))
+        imgUrlList.append("Images/py.png")
+        IDList.append(plank[0])
 
-    contextJson = {'planks': plankList}
+        contextlist = zip(plankList, imgUrlList, IDList)
+
+    contextJson = {'planks': contextlist}
     context = Context(contextJson)
 
 
