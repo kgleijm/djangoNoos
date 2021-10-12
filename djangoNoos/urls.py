@@ -17,19 +17,20 @@ import os
 
 from django.contrib import admin
 from django.urls import path
-from djangoNoos.Views.home import getPage as homePage
-from djangoNoos.Views.plank import getPage as plankPage
 from djangoNoos.Backend.StartupManager import initializeBackendStartup
 from django.conf import settings
 from django.conf.urls.static import static
 
-
+from djangoNoos.Views.home import getPage as homePage
+from djangoNoos.Views.plank import getPage as plankPage
+from djangoNoos.Backend.calibrationManager import calibrate
 
 initializeBackendStartup()
 
 urlpatterns = [
     path('', homePage, name='home'),
     path('plank/', plankPage, name='home'),
+    path('plank/calibrate/', calibrate, name='calibrate'),
     path('admin/', admin.site.urls),
 ]
 

@@ -7,14 +7,13 @@ noosPointTableCreationSql = "CREATE TABLE IF NOT EXISTS noospoints (" \
                             "plankId TEXT," \
                             "Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP," \
                             "product TEXT DEFAULT 'Undefined'," \
-                            "fillgrade TEXT," \
-                            "calibrationjson TEXT," \
                             "rawSensorMatrix TEXT);"
 
 plankTableCreationSql = "CREATE TABLE IF NOT EXISTS plankconfigurations (" \
                         "ID TEXT PRIMARY KEY," \
                         "product TEXT," \
-                        "calibrationjson TEXT);"
+                        "calibrationEmpty TEXT," \
+                        "calibrationFull TEXT);"
 
 con = sqlite3.connect('NoosData.db')
 cur = con.cursor()
@@ -31,13 +30,13 @@ class TSDataManager:
         self.cursor = self.connection.cursor()
 
     def insertNoosPoint(self, noosPointObject):
-        sql = f'INSERT INTO noospoints(plankId, product, fillgrade, calibrationjson, rawSensorMatrix) VALUES(?,?,?,?,?)'
-        self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", f"[{int(r.random() * 100)},{int(r.random() * 100)}]", "None", str(noosPointObject.getMatrix())))
+        sql = f'INSERT INTO noospoints(plankId, product, rawSensorMatrix) VALUES(?,?,?)'
+        self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", str(noosPointObject.getMatrix())))
         self.connection.commit()
 
     def addPlankIfUnknown(self, noosPointObject):
-        sql = f"INSERT OR IGNORE INTO plankconfigurations (ID, product, calibrationjson) VALUES (?, ?, ?)"
-        self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", "[350,350]"))
+        sql = f"INSERT OR IGNORE INTO plankconfigurations (ID, product, calibrationEmpty, calibrationFull) VALUES (?, ?, ?, ?)"
+        self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", "[]", "[]"))
         self.connection.commit()
 
     def getPlanks(self):
