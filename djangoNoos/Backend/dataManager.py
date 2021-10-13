@@ -73,6 +73,17 @@ class TSDataManager:
             return row[1]
         return None
 
+    def getAmountOfPointsByID(self, ID):
+        sql = f"""SELECT COUNT(*)
+                  FROM noospoints
+                  WHERE plankId = "{ID}"
+                  """
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        for row in rows:
+            # print("getAmountOfPointsByID", row[0])
+            return row[0]
+        return None
 
 
 
