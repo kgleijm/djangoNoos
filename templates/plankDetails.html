@@ -6,12 +6,38 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
+    <style>
+        #rEmpty{
+            width:10px;
+            height:10px;
+            background:gray;
+            display: inline-block;
+        }
+
+        #rFull{
+            width:10px;
+            height:10px;
+            background:gray;
+            display: inline-block;
+        }
+
+        .calibrationButton{
+            display: inline-block;
+        }
+    </style>
+
+
 </head>
 <body>
 
     You requested: {{ ID }}
-    <br><button id="cEmpty" type="submit" value="CalibrateEmpty-{{ID}}">Calibrate Empty</button>
-    <br><button id="cFull" type="submit" value="CalibrateFull-{{ID}}">Calibrate Full</button>
+    <br>
+    <button class="calibrationButton" id="cEmpty" type="submit" value="CalibrateEmpty-{{ID}}">Calibrate Empty</button>
+    <div id="rEmpty"></div>
+    <br>
+    <button class="calibrationButton" id="cFull" type="submit" value="CalibrateFull-{{ID}}">Calibrate Full</button>
+    <div id="rFull"></div>
+
 
     <script>
 
@@ -30,23 +56,19 @@
             return "";
          }
 
-        function sendJsonToUrl(url, json) {
+        function sendJsonToUrl(url, json, cssSelector) {
             $.ajax({
                url: url,
                type: "POST",
                dataType: "json",
-               data: {"test": "test"},
+               data: json,
                statusCode: {
-                 200: function (your_Response_Data) {
-                    // YOUR SERVER'S RESPONSE
-                    // you can act on your server's
-                    // response if there will be any
-                    // eg. you can send back information to update UI.
-                  },
-                  // ... handle errors if required
-                  404: function () {
-                     // what to do on 404 etc.
-                  }
+                    200: function (response) {
+                        $(cssSelector).css('background-color', 'green');
+                    },
+                    404: function () {
+                        $(cssSelector).css('background-color', 'red');
+                    }
                },
                complete: function (jqXHR, textStatus) {
                   console.log("Ajax call complete")
@@ -61,11 +83,13 @@
             console.log("Document loaded")
             $("#cEmpty").click(function (){
                 console.log("Clicked cEmpty!")
-                sendJsonToUrl("calibrate/", {})
+                $('#rEmpty').css('background-color', 'orange');
+                sendJsonToUrl("calibrate/", {"ID":"{{ ID }}", "calibrate": "Empty"}, '#rEmpty')
             })
             $("#cFull").click(function (){
                 console.log("Clicked cFull!")
-                sendJsonToUrl("calibrate/", {})
+                $('#rFull').css('background-color', 'orange');
+                sendJsonToUrl("calibrate/", {"ID":"{{ ID }}", "calibrate": "Full"}, "#rFull")
             })
         });
 

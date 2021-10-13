@@ -2,6 +2,7 @@ import json
 from threading import *
 from socket import *
 import copy
+from djangoNoos.Backend import dataManager
 
 zoneSeperationMatrix = [
     [],
@@ -21,13 +22,9 @@ def getZone(x, calibrationDict):
     return i
 
 
-
-
 # The NoosAdapter is a threadWrapper responsible for listening on udp port 2311
 # and passing generated NoosePoints objects to the database
 # NoosPoints are collections of raw sensor data bound to a timestamp
-
-
 
 # class representing data from Noosmessage
 class NoosPoint:
@@ -166,9 +163,9 @@ class NoosAdapter(Thread):
         while True:
             m = self.s.recvfrom(1024)
             n = NoosPoint(m)
-            # print(n)
 
             if n.isValid():
+                print(f"Server received values from {n.deviceEUI} at {n.ip}")
                 DataManager.insertNoosPoint(n)
                 DataManager.addPlankIfUnknown(n)
             else:
@@ -179,6 +176,22 @@ class NoosAdapter(Thread):
         super().__init__()
         self.start()
         print("noosAdapter INIT done")
+
+
+def sendCalibrationRequestTo(ID):
+    # get conection to database to request IP
+    myDataManager = dataManager.TSDataManager()
+    IP = myDataManager.getIpByID(ID)
+    if IP is not None:
+        s = socket()
+        s.connect((IP, 2312))
+        message = "SEND_CALIBRATION_VALUES"
+        s.send(message.encode())
+        print("Server received", s.recv(1024).decode(), f"From {ID} at {IP}")
+        s.close()
+        return True
+    return False
+
 
 
 

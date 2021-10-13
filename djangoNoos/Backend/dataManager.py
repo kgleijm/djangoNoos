@@ -11,6 +11,7 @@ noosPointTableCreationSql = "CREATE TABLE IF NOT EXISTS noospoints (" \
 
 plankTableCreationSql = "CREATE TABLE IF NOT EXISTS plankconfigurations (" \
                         "ID TEXT PRIMARY KEY," \
+                        "IP TEXT," \
                         "product TEXT," \
                         "calibrationEmpty TEXT," \
                         "calibrationFull TEXT);"
@@ -35,8 +36,11 @@ class TSDataManager:
         self.connection.commit()
 
     def addPlankIfUnknown(self, noosPointObject):
-        sql = f"INSERT OR IGNORE INTO plankconfigurations (ID, product, calibrationEmpty, calibrationFull) VALUES (?, ?, ?, ?)"
-        self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", "[]", "[]"))
+
+        # TODO update ip if needed
+
+        sql = f"INSERT OR IGNORE INTO plankconfigurations (ID, IP, product, calibrationEmpty, calibrationFull) VALUES (?, ?, ?, ?, ?)"
+        self.cursor.execute(sql, (noosPointObject.deviceEUI, noosPointObject.ip, "Undefined", "[]", "[]"))
         self.connection.commit()
 
     def getPlanks(self):
@@ -56,6 +60,18 @@ class TSDataManager:
         GROUP BY plankId
         ORDER BY plankId, Timestamp desc
         """
+
+    def getIpByID(self, ID):
+        sql = f"""
+                SELECT DISTINCT ID, IP
+                FROM plankconfigurations
+                WHERE ID = "{ID}"
+                """
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        for row in rows:
+            return row[1]
+        return None
 
 
 
