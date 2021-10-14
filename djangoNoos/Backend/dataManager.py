@@ -1,3 +1,4 @@
+import json
 import sqlite3
 import random as r
 
@@ -85,7 +86,21 @@ class TSDataManager:
             return row[0]
         return None
 
+    def getLastNMatricesByID(self, n, ID):
+        sql = f"""
+            SELECT rawSensorMatrix FROM noospoints
+            WHERE plankId = '{ID}'
+            LIMIT {n}
+        """
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        output = []
+        for row in rows:
+            rowAsString = row[0]
+            aslist = json.loads(rowAsString)
+            output.append(aslist)
 
+        return output
 
 
 
