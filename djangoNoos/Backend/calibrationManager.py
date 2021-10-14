@@ -11,9 +11,6 @@ def generateMatrix(ID):
     dataManager = data.TSDataManager()
     sensorMatrices = dataManager.getLastNMatricesByID(4, ID)
 
-    for matrix in sensorMatrices:
-        print(matrix)
-
     output = copy.deepcopy(sensorMatrices[0])
     for y in range(len(output)):
         for x in range(len(output)):
@@ -21,7 +18,7 @@ def generateMatrix(ID):
                                sensorMatrices[1][y][x],
                                sensorMatrices[2][y][x],
                                sensorMatrices[3][y][x]])/len(sensorMatrices)
-    return matrix
+    return output
 
 
 def calibrate(request):
@@ -30,7 +27,6 @@ def calibrate(request):
 
     if request.is_ajax():
         if request.method == 'POST':
-            # print(f'Raw Data: {request.body}')
 
             # decode incoming json as bytestring to dict
             asString = str(request.body.decode('utf-8'))

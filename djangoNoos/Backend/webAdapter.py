@@ -168,6 +168,7 @@ class NoosAdapter(Thread):
                 print(f"Server received values from {n.deviceEUI} at {n.ip}")
                 DataManager.insertNoosPoint(n)
                 DataManager.addPlankIfUnknown(n)
+                DataManager.updateIPifNeeded(n)
             else:
                 print("no valid point!")
 

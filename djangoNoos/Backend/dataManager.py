@@ -36,10 +36,14 @@ class TSDataManager:
         self.cursor.execute(sql, (noosPointObject.deviceEUI, "Undefined", str(noosPointObject.getMatrix())))
         self.connection.commit()
 
+    def updateIPifNeeded(self, noosPointObject):
+        sql = f"""
+            UPDATE plankconfigurations
+            SET IP = '{noosPointObject.ip}'
+            WHERE ID = '{noosPointObject.deviceEUI}'
+        """
+
     def addPlankIfUnknown(self, noosPointObject):
-
-        # TODO update ip if needed
-
         sql = f"INSERT OR IGNORE INTO plankconfigurations (ID, IP, product, calibrationEmpty, calibrationFull) VALUES (?, ?, ?, ?, ?)"
         self.cursor.execute(sql, (noosPointObject.deviceEUI, noosPointObject.ip, "Undefined", "[]", "[]"))
         self.connection.commit()
@@ -108,8 +112,6 @@ class TSDataManager:
             SET calibrationEmpty = '{str(matrix)}'
             WHERE ID = '{ID}'
         """
-        print(sql)
-
         self.cursor.execute(sql)
         self.connection.commit()
 
@@ -119,9 +121,6 @@ class TSDataManager:
             SET calibrationFull = '{str(matrix)}'
             WHERE ID = '{ID}'
                 """
-
-        print(sql)
-
         self.cursor.execute(sql)
         self.connection.commit()
 
