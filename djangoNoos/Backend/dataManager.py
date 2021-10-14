@@ -1,3 +1,4 @@
+import copy
 import json
 import sqlite3
 import random as r
@@ -92,19 +93,47 @@ class TSDataManager:
 
     def getLastNMatricesByID(self, n, ID):
         sql = f"""
-            SELECT rawSensorMatrix FROM noospoints
+            SELECT rawSensorMatrix, "Timestamp" as t FROM noospoints
             WHERE plankId = '{ID}'
+            ORDER BY t DESC 
             LIMIT {n}
         """
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
         output = []
         for row in rows:
+            # print(row[0][:30], " ||| ", row[1])
             rowAsString = row[0]
             aslist = json.loads(rowAsString)
             output.append(aslist)
 
         return output
+
+    def getEmptyCalibrationMatrix(self, ID):
+        sql = f"""
+                    SELECT calibrationEmpty FROM plankconfigurations
+                    WHERE ID = '{ID}'
+                """
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+
+        try:
+            return json.loads(str(rows[0][0]))
+        except:
+            return None
+
+    def getFullCalibrationMatrix(self, ID):
+        sql = f"""
+                    SELECT calibrationFull FROM plankconfigurations
+                    WHERE ID = '{ID}'
+                """
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+
+        try:
+            return json.loads(str(rows[0][0]))
+        except:
+            return None
 
     def setEmptyCalibrationForID(self, matrix, ID):
         sql = f"""
@@ -124,7 +153,29 @@ class TSDataManager:
         self.cursor.execute(sql)
         self.connection.commit()
 
+    def getMatrixAsPercentagesFromID(self, ID):
+        fullCalibrationMatrix = self.getFullCalibrationMatrix(ID)
+        emptyCalibrationMatrix = self.getEmptyCalibrationMatrix(ID)
+        targetMatrix = self.getLastNMatricesByID(1, ID)[0]
+
+        # print("Full: ", fullCalibrationMatrix)
+        # print("Empty: ", emptyCalibrationMatrix)
+
+        #differenceCalibrationMatrix = copy.deepcopy(fullCalibrationMatrix)
+        #differenceTargetMatrix = copy.deepcopy(fullCalibrationMatrix)
+        percentageMatrix = copy.deepcopy(fullCalibrationMatrix)
+        for y in range(len(fullCalibrationMatrix)):
+            for x in range(len(fullCalibrationMatrix[0])):
+                calibrationDifference = abs(fullCalibrationMatrix[y][x] - emptyCalibrationMatrix[y][x])
+                targetDifference = targetMatrix[y][x] - emptyCalibrationMatrix[y][x]
+                # print("calibrationDifference:", calibrationDifference, "targetDifference:", targetDifference, "percentage:", abs((targetDifference/(calibrationDifference+0.1)) * 100))
+                # print()
+
+                absolutePercentage = abs((targetDifference/(calibrationDifference+0.1)) * 100)
+                percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0) # clamp percentage
 
 
+
+        print("Percentage: ", percentageMatrix)
 
 

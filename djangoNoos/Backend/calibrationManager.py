@@ -11,6 +11,9 @@ def generateMatrix(ID):
     dataManager = data.TSDataManager()
     sensorMatrices = dataManager.getLastNMatricesByID(4, ID)
 
+    # for matrix in sensorMatrices:
+    #     print(matrix)
+
     output = copy.deepcopy(sensorMatrices[0])
     for y in range(len(output)):
         for x in range(len(output)):
@@ -18,6 +21,7 @@ def generateMatrix(ID):
                                sensorMatrices[1][y][x],
                                sensorMatrices[2][y][x],
                                sensorMatrices[3][y][x]])/len(sensorMatrices)
+    # print(output)
     return output
 
 
@@ -68,10 +72,4 @@ def calibrate(request):
                 print("No specified calibration request found while calibrationManager got engaged")
                 return JsonResponse({}, status=400)
 
-
-
-
-
-
-
-    return JsonResponse({}, status=200)
+    return JsonResponse({}, status=400)

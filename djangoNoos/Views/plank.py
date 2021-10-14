@@ -1,6 +1,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render
+import djangoNoos.Backend.dataManager as data
 
 
 def getPage(request):
@@ -11,6 +12,9 @@ def getPage(request):
     contextJson = {'ID': plankId,
                    'statusMessage': 0
                    }
+
+    dataManager = data.TSDataManager()
+    dataManager.getMatrixAsPercentagesFromID(plankId)
 
 
     return render(request, pageLocation, context=contextJson)
