@@ -171,7 +171,7 @@ class TSDataManager:
                 # print("calibrationDifference:", calibrationDifference, "targetDifference:", targetDifference, "percentage:", abs((targetDifference/(calibrationDifference+0.1)) * 100))
                 # print()
 
-                absolutePercentage = abs((targetDifference/(calibrationDifference+0.1)) * 100)
+                absolutePercentage = int(abs((targetDifference/(calibrationDifference+0.1)) * 100))
                 percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0) # clamp percentage
 
 
