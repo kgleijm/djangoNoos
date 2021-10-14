@@ -2,8 +2,7 @@ import copy
 import json
 from time import sleep
 
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.http import JsonResponse
 from djangoNoos.Backend import webAdapter
 import djangoNoos.Backend.dataManager as data
 
@@ -56,6 +55,8 @@ def calibrate(request):
                     while dataManager.getAmountOfPointsByID(incoming["ID"]) < target:
                         sleep(1)
                         timeElapsed += 1
+                        if timeElapsed == 5:
+                            webAdapter.sendCalibrationRequestTo(incoming["ID"])
                         if timeElapsed >= 10:
                             return JsonResponse({}, status=400)
 
