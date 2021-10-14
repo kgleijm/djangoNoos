@@ -21,8 +21,7 @@ def generateMatrix(ID):
                                sensorMatrices[1][y][x],
                                sensorMatrices[2][y][x],
                                sensorMatrices[3][y][x]])/len(sensorMatrices)
-
-    print(output)
+    return matrix
 
 
 def calibrate(request):
@@ -55,19 +54,23 @@ def calibrate(request):
                     while dataManager.getAmountOfPointsByID(incoming["ID"]) < target:
                         sleep(1)
                         timeElapsed += 1
-                        if timeElapsed == 5:
+                        if timeElapsed % 3 == 0:
                             webAdapter.sendCalibrationRequestTo(incoming["ID"])
                         if timeElapsed >= 10:
                             return JsonResponse({}, status=400)
 
                     # start analysis
-                    generateMatrix(incoming["ID"])
+                    newCalibrationMatrix = generateMatrix(incoming["ID"])
+                    if incoming["calibrate"] == "Empty":
+                        dataManager.setEmptyCalibrationForID(newCalibrationMatrix, incoming["ID"])
+                    elif incoming["calibrate"] == "Full":
+                        dataManager.setFullCalibrationForID(newCalibrationMatrix, incoming["ID"])
 
                     return JsonResponse({}, status=200)
 
             else:
                 print("No specified calibration request found while calibrationManager got engaged")
-                return JsonResponse({}, status=500)
+                return JsonResponse({}, status=400)
 
 
 

@@ -102,8 +102,28 @@ class TSDataManager:
 
         return output
 
+    def setEmptyCalibrationForID(self, matrix, ID):
+        sql = f"""
+            UPDATE plankconfigurations
+            SET calibrationEmpty = '{str(matrix)}'
+            WHERE ID = '{ID}'
+        """
+        print(sql)
 
+        self.cursor.execute(sql)
+        self.connection.commit()
 
+    def setFullCalibrationForID(self, matrix, ID):
+        sql = f"""
+            UPDATE plankconfigurations
+            SET calibrationFull = '{str(matrix)}'
+            WHERE ID = '{ID}'
+                """
+
+        print(sql)
+
+        self.cursor.execute(sql)
+        self.connection.commit()
 
 
 
