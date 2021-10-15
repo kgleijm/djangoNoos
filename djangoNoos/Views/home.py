@@ -5,25 +5,32 @@ from django.template import Context, Template
 from ..CSS.CSSfile import CSS
 from ..Backend.dataManager import TSDataManager
 from django.shortcuts import render
-
+import djangoNoos.Backend.graphicsManager as gm
+GraphicsManager = gm.GraphicsManager
 
 def getPage(request):
     print("Home.getPage() got request:")
     print(request)
-    #response = CSS
     DataManager = TSDataManager()
     planks = DataManager.getPlanks()
 
     pageLocation = "overview.html"
 
+
+
     plankList = []
     imgUrlList = []
     IDList = []
     for plank in planks:
-        plankPercentages = None
+        ID = plank[0]
+        graphName = f"Images/Overview-{ID}.png"
+        plankPercentages = DataManager.getMatrixAsPercentagesFromID(ID)
+        GraphicsManager.SaveHeatMapFillGrade(plankPercentages, graphName)
+
+
 
         plankList.append(str(plank))
-        imgUrlList.append("Images/py.png")
+        imgUrlList.append(graphName)
         IDList.append(plank[0])
 
         contextlist = zip(plankList, imgUrlList, IDList)
@@ -36,7 +43,3 @@ def getPage(request):
     return render(request, pageLocation, context=contextJson)
 
 
-    #for plank in planks:
-    #    response += f"<div class=\"noosWidgetHome\"><img src=\"Images/py.png\">{str(plank)}</div>"
-
-    #return HttpResponse("Hello, you're at home!<br>" + response)

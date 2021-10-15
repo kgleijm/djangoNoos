@@ -50,13 +50,8 @@ class TSDataManager:
         self.connection.commit()
 
     def getPlanks(self):
-        self.cursor.execute("SELECT * FROM plankconfigurations")
-
+        self.cursor.execute("SELECT ID FROM plankconfigurations")
         rows = self.cursor.fetchall()
-
-        for row in rows:
-            print(row)
-
         return rows
 
     def getLatestSensorReadings(self):
@@ -158,24 +153,17 @@ class TSDataManager:
         emptyCalibrationMatrix = self.getEmptyCalibrationMatrix(ID)
         targetMatrix = self.getLastNMatricesByID(1, ID)[0]
 
-        # print("Full: ", fullCalibrationMatrix)
-        # print("Empty: ", emptyCalibrationMatrix)
-
-        #differenceCalibrationMatrix = copy.deepcopy(fullCalibrationMatrix)
-        #differenceTargetMatrix = copy.deepcopy(fullCalibrationMatrix)
         percentageMatrix = copy.deepcopy(fullCalibrationMatrix)
         for y in range(len(fullCalibrationMatrix)):
             for x in range(len(fullCalibrationMatrix[0])):
+                # calculate percentage from lasts sensor reading against calibration values
                 calibrationDifference = abs(fullCalibrationMatrix[y][x] - emptyCalibrationMatrix[y][x])
                 targetDifference = targetMatrix[y][x] - emptyCalibrationMatrix[y][x]
-                # print("calibrationDifference:", calibrationDifference, "targetDifference:", targetDifference, "percentage:", abs((targetDifference/(calibrationDifference+0.1)) * 100))
-                # print()
-
-                absolutePercentage = int(abs((targetDifference/(calibrationDifference+0.1)) * 100))
-                percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0) # clamp percentage
+                absolutePercentage = int(abs((targetDifference/(calibrationDifference+0.1)) * 100))  # calculate percentage and clean up to int
+                percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0)  # clamp percentage
+        return percentageMatrix
 
 
-
-        print("Percentage: ", percentageMatrix)
+        #print("Percentage: ", percentageMatrix)
 
 
