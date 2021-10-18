@@ -16,10 +16,18 @@ class GraphicsManager:
             print(row)
 
         #start canvassing
-        img = Image.new('RGB', (200, 250), color='white')
+        heatmapcolors = ["#6FEB6F", "#B0F2B4", "#FFE15C", "#DE6C3F", "#BC412B"]
+        img = Image.new('RGB', (201, 251), color='white')
         d = ImageDraw.Draw(img)
-        rect = [(10, 10), (10, 10)]
-        d.rectangle(rect, fill="#b4ed9a", outline="black")
+
+        for y in range(5):
+            for x in range(4):
+                text = f"{simplifiedMatrix[y][x]}%"
+                twentyPercentile = min(abs(5-(simplifiedMatrix[y][x]+10)//20),4)
+
+                rect = [(x*50, y*50), ((x+1)*50, (y+1)*50)]
+                d.rectangle(rect, fill=heatmapcolors[twentyPercentile], outline="black")
+                d.text((x*50+18, y*50+20), text, fill="#000000")
 
 
 
