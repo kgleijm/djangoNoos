@@ -148,22 +148,127 @@ class TSDataManager:
         self.cursor.execute(sql)
         self.connection.commit()
 
-    def getMatrixAsPercentagesFromID(self, ID):
+    #
+    # def getMatrixAsPercentagesFromID(self, ID):
+    #     fullCalibrationMatrix = self.getFullCalibrationMatrix(ID)
+    #     emptyCalibrationMatrix = self.getEmptyCalibrationMatrix(ID)
+    #     targetMatrix = self.getLastNMatricesByID(1, ID)[0]
+    #
+    #     # print("FullCalibrationMatrix")
+    #     # for row in fullCalibrationMatrix:
+    #     #     print(row)
+    #     # print("\n")
+    #     #
+    #     # print("EmptyCalibrationMatrix")
+    #     # for row in emptyCalibrationMatrix:
+    #     #     print(row)
+    #     # print("\n")
+    #     #
+    #     # print("targetMatrix")
+    #     # for row in targetMatrix:
+    #     #     print(row)
+    #     # print("\n")
+    #
+    #
+    #
+    #     percentageMatrix = copy.deepcopy(fullCalibrationMatrix)
+    #     for y in range(len(fullCalibrationMatrix)):
+    #         for x in range(len(fullCalibrationMatrix[0])):
+    #             # calculate percentage from lasts sensor reading against calibration values
+    #             calibrationDifference = abs(fullCalibrationMatrix[y][x] - emptyCalibrationMatrix[y][x])
+    #             if calibrationDifference < 10:
+    #                 percentageMatrix[y][x] = -1
+    #             else:
+    #                 targetDifference = targetMatrix[y][x] - emptyCalibrationMatrix[y][x]
+    #                 absolutePercentage = int(abs((targetDifference/(calibrationDifference+0.1)) * 100))  # calculate percentage and clean up to int
+    #                 percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0)  # clamp percentage
+    #
+    #     print("percentageMatrix")
+    #     for row in percentageMatrix:
+    #         print(row)
+    #     print("\n")
+    #
+    #     return percentageMatrix
+    #
+    #
+    #
+    #
+    #     #print("Percentage: ", percentageMatrix)
+    #
+
+    def getMatrixAsPercentagesFromID(self, ID, n=1):
         fullCalibrationMatrix = self.getFullCalibrationMatrix(ID)
         emptyCalibrationMatrix = self.getEmptyCalibrationMatrix(ID)
-        targetMatrix = self.getLastNMatricesByID(1, ID)[0]
+        targetMatrices = self.getLastNMatricesByID(n, ID)
 
-        percentageMatrix = copy.deepcopy(fullCalibrationMatrix)
-        for y in range(len(fullCalibrationMatrix)):
-            for x in range(len(fullCalibrationMatrix[0])):
-                # calculate percentage from lasts sensor reading against calibration values
-                calibrationDifference = abs(fullCalibrationMatrix[y][x] - emptyCalibrationMatrix[y][x])
-                targetDifference = targetMatrix[y][x] - emptyCalibrationMatrix[y][x]
-                absolutePercentage = int(abs((targetDifference/(calibrationDifference+0.1)) * 100))  # calculate percentage and clean up to int
-                percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0)  # clamp percentage
-        return percentageMatrix
+        # print("FullCalibrationMatrix")
+        # for row in fullCalibrationMatrix:
+        #     print(row)
+        # print("\n")
+        #
+        # print("EmptyCalibrationMatrix")
+        # for row in emptyCalibrationMatrix:
+        #     print(row)
+        # print("\n")
+        #
+        # print("targetMatrix")
+        # for row in targetMatrix:
+        #     print(row)
+        # print("\n")
+
+        percentMatrices = []
+
+        for matrix in targetMatrices:
+
+            percentageMatrix = copy.deepcopy(fullCalibrationMatrix)
+            for y in range(len(fullCalibrationMatrix)):
+                for x in range(len(fullCalibrationMatrix[0])):
+                    # calculate percentage from lasts sensor reading against calibration values
+                    calibrationDifference = abs(fullCalibrationMatrix[y][x] - emptyCalibrationMatrix[y][x])
+                    if calibrationDifference < 10:
+                        percentageMatrix[y][x] = -1
+                    else:
+                        targetDifference = matrix[y][x] - emptyCalibrationMatrix[y][x]
+                        absolutePercentage = int(abs((targetDifference/(calibrationDifference+0.1)) * 100))  # calculate percentage and clean up to int
+                        percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0)  # clamp percentage
+
+            percentMatrices.append(percentageMatrix)
+
+            # print("percentageMatrix")
+            # for row in percentageMatrix:
+            #     print(row)
+            # print("\n")
+
+
+        if n==1:
+            return percentMatrices[0]
+        else:
+            return percentMatrices
+
+
 
 
         #print("Percentage: ", percentageMatrix)
 
+    def getProductListAsString(self, ID):
+        sql = f"SELECT product FROM plankconfigurations WHERE ID = '{ID}'"
 
+
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+
+        try:
+            return json.loads(str(rows[0][0]))
+        except:
+            return None
+
+    def setProductList(self, ID, productlist):
+        sql = f"""
+                UPDATE plankconfigurations
+                SET product = '{str(productlist).replace("'",'"')}'
+                WHERE ID = '{ID}'
+                    """
+
+        print(sql)
+        self.cursor.execute(sql)
+        self.connection.commit()

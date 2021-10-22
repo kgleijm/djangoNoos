@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 from djangoNoos.Views.home import getPage as homePage
 from djangoNoos.Views.plank import getPage as plankPage
 from djangoNoos.Backend.calibrationManager import calibrate
+from djangoNoos.Backend.productManager import updateProducts
 
 initializeBackendStartup()
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path('', homePage, name='home'),
     path('plank/', plankPage, name='home'),
     path('plank/calibrate/', calibrate, name='calibrate'),
+    path('plank/productUpdate/', updateProducts, name='updateProducts'),
     path('admin/', admin.site.urls),
 ]
 

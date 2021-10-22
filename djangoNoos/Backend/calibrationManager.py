@@ -48,7 +48,7 @@ def calibrate(request):
                     dataManager = data.TSDataManager()
 
                     initialDataPoints = dataManager.getAmountOfPointsByID(incoming["ID"])
-                    target = initialDataPoints + 4
+                    target = initialDataPoints + 8
                     webAdapter.sendCalibrationRequestTo(incoming["ID"])
                     timeElapsed = 0
                     while dataManager.getAmountOfPointsByID(incoming["ID"]) < target:

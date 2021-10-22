@@ -21,11 +21,37 @@ def getPage(request):
     plankList = []
     imgUrlList = []
     IDList = []
+    contextlist = []
     for plank in planks:
         ID = plank[0]
         graphName = f"Images/Overview-{ID}.png"
         plankPercentages = DataManager.getMatrixAsPercentagesFromID(ID)
-        GraphicsManager.SaveHeatMapFillGrade(plankPercentages, graphName)
+
+
+
+        GraphicsManager.SaveOffsetHeatmap(plankPercentages, graphName)
+
+
+        totalProducts = 28
+        sensorsRead = 0
+        totalPercentageValue = 0
+        unusedSensors = 0
+        for y in range(len(plankPercentages)):
+            for x in range(len(plankPercentages[0])):
+                if plankPercentages[y][x] == -1:
+                    unusedSensors += 1
+                else:
+                    totalPercentageValue += plankPercentages[y][x]
+                    sensorsRead += 1
+        averagePercentage = (totalPercentageValue/sensorsRead)/100
+        amountOfProducts = averagePercentage * totalProducts
+
+        print(f"\n\n\n\n\n\nAmount of products found on {ID}: {amountOfProducts}\n\n\n\n\n\n\n")
+
+
+
+
+
 
 
 
@@ -36,7 +62,6 @@ def getPage(request):
         contextlist = zip(plankList, imgUrlList, IDList)
 
     contextJson = {'planks': contextlist}
-    context = Context(contextJson)
 
 
 

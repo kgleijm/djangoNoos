@@ -21,9 +21,21 @@
             display: inline-block;
         }
 
+        #rProductConfiguration{
+            width:10px;
+            height:10px;
+            background:gray;
+            display: inline-block;
+        }
+
         .calibrationButton{
             display: inline-block;
         }
+
+        .productListItem{
+
+        }
+
     </style>
 
 
@@ -32,14 +44,67 @@
 
     You requested: {{ ID }}
     <br>
-    <button class="calibrationButton" id="cEmpty" type="submit" value="CalibrateEmpty-{{ID}}">Calibrate Empty</button>
-    <div id="rEmpty"></div>
-    <br>
-    <button class="calibrationButton" id="cFull" type="submit" value="CalibrateFull-{{ID}}">Calibrate Full</button>
-    <div id="rFull"></div>
 
+    <div style="display: inline-block; padding-top: 50px">
+        Product:
+        <div><input id="productFormInput0" class="productFormInput" type="text"></div>
+        <div><input id="productFormInput1" class="productFormInput" type="text"></div>
+        <div><input id="productFormInput2" class="productFormInput" type="text"></div>
+        <button id="productSaveButton">Save product configuration</button>
+        <div id="rProductConfiguration"></div>
+    </div>
+
+    <div style="display: inline-block; padding-left: 50px">
+        <br>
+        <button class="calibrationButton" id="cEmpty" type="submit" value="CalibrateEmpty-{{ID}}">Calibrate Empty</button>
+        <div id="rEmpty"></div>
+        <br>
+        <button class="calibrationButton" id="cFull" type="submit" value="CalibrateFull-{{ID}}">Calibrate Full</button>
+        <div id="rFull"></div>
+    </div>
 
     <script>
+
+        function getProductList(){
+            $.ajax({
+               url: "productUpdate/",
+               type: "POST",
+               dataType: "json",
+               data: JSON.stringify({"ID": "{{ ID }}", "type": "load"}),
+               statusCode: {
+                    200: function (response) {
+                        console.log("Server response on getProducts:")
+                        console.log(response)
+
+                        // read incoming values
+                        let incomingProductList = response["productList"]
+
+                        // get list of all product inputs
+                        let productFormInputs = document.getElementsByClassName("productFormInput")
+
+                        // reset fields
+                        for (let i = 0; i < incomingProductList.length; i++) {
+                            productFormInputs[i].value = ""
+                        }
+
+                        // fill fields with incoming values
+                        for (let i = 0; i < incomingProductList.length; i++) {
+                            productFormInputs[i].value = incomingProductList[i]
+                            console.log(incomingProductList[i])
+                        }
+
+
+
+                    },
+                    400: function () {
+                        console.log("getProductList returned an error")
+                    }
+               },
+               complete: function (jqXHR, textStatus) {
+                  console.log("Ajax call complete")
+               }
+            });
+        }
 
         function getCookie(c_name){
             if (document.cookie.length > 0)
@@ -77,9 +142,13 @@
         }
 
         $(document).ready(function(){
+
             $.ajaxSetup({
                 headers: { "X-CSRFToken": getCookie("csrftoken") }
             });
+
+            getProductList()
+
             console.log("Document loaded")
             $("#cEmpty").click(function (){
                 console.log("Clicked cEmpty!")
@@ -90,6 +159,21 @@
                 console.log("Clicked cFull!")
                 $('#rFull').css('background-color', 'orange');
                 sendJsonToUrl("calibrate/", {"ID":"{{ ID }}", "calibrate": "Full"}, "#rFull")
+            })
+            $("#productSaveButton").click(function () {
+                console.log("click product button")
+                let products = document.getElementsByClassName("productFormInput");
+                let productList = []
+                for (let i = 0; i < products.length; i++) {
+                    if(products[i].value !== ""){
+                        productList.push(products[i].value)
+                        console.log(products[i].value)
+                    }
+                }
+                let outgoing = {"ID": "{{ ID }}", "type": "save", "productConfiguration": productList}
+                console.log(outgoing)
+                sendJsonToUrl("productUpdate/", JSON.stringify(outgoing), "#rProductConfiguration")
+
             })
         });
 
