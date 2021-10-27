@@ -10,7 +10,8 @@ def getPage(request):
     pageLocation = "plankDetails.html"
 
     contextJson = {'ID': plankId,
-                   'statusMessage': 0
+                   'statusMessage': 0,
+                   'imgUrl': f"../Images/Specification-{plankId}.png"
                    }
 
     dataManager = data.TSDataManager()

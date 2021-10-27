@@ -144,6 +144,6 @@ class GraphicsManager:
         plt.xticks(np.arange(0, len(timeStamps) + 1, 20), rotation=90)
         plt.xlabel('Time')
         plt.ylabel('Fillgrade')
-        plt.show()
+        plt.savefig(name)
 
 
