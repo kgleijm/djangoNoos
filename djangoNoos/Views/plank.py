@@ -2,7 +2,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 import djangoNoos.Backend.dataManager as data
-
+from djangoNoos.Backend.graphicsManager import GraphicsManager
 
 def getPage(request):
     print(request)
@@ -14,7 +14,11 @@ def getPage(request):
                    }
 
     dataManager = data.TSDataManager()
-    dataManager.getMatrixAsPercentagesFromID(plankId)
+    percentageMatrices = dataManager.getMatrixAsPercentagesFromID(plankId, n=200)
+
+    graphName = f"Images/Specification-{plankId}.png"
+    GraphicsManager.saveFillGradeTimeLine(plankId, graphName)
+
 
 
     return render(request, pageLocation, context=contextJson)

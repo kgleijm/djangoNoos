@@ -1,8 +1,8 @@
 import copy
+import inspect
 import json
 import sqlite3
 import random as r
-
 
 noosPointTableCreationSql = "CREATE TABLE IF NOT EXISTS noospoints (" \
                             "ID INTEGER PRIMARY KEY AUTOINCREMENT," \
@@ -24,6 +24,7 @@ cur = con.cursor()
 # execute necessary statements
 cur.execute(noosPointTableCreationSql)
 cur.execute(plankTableCreationSql)
+
 
 # Thread Safe Datamanager
 class TSDataManager:
@@ -102,6 +103,25 @@ class TSDataManager:
             aslist = json.loads(rowAsString)
             output.append(aslist)
 
+        return output
+
+    def getLastNMatricesWithTimeStampByIDPerMinute(self, ID):
+        sql = f"""
+                    SELECT rawSensorMatrix, strftime('%Y-%m-%d-%H-%M',"Timestamp") as t FROM noospoints
+                    WHERE plankId = '{ID}' 
+                    AND "Timestamp" >= date('now', '-1 days')
+                    GROUP by t
+                    ORDER BY t DESC
+                """
+
+        self.cursor.execute(sql)
+        rows = self.cursor.fetchall()
+        output = []
+        print(output)
+        for row in rows:
+            rowAsString = row[0]
+            aslist = json.loads(rowAsString)
+            output.append((aslist, row[1]))
         return output
 
     def getEmptyCalibrationMatrix(self, ID):
@@ -229,7 +249,8 @@ class TSDataManager:
                         percentageMatrix[y][x] = -1
                     else:
                         targetDifference = matrix[y][x] - emptyCalibrationMatrix[y][x]
-                        absolutePercentage = int(abs((targetDifference/(calibrationDifference+0.1)) * 100))  # calculate percentage and clean up to int
+                        absolutePercentage = int(abs((targetDifference / (
+                                    calibrationDifference + 0.1)) * 100))  # calculate percentage and clean up to int
                         percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0)  # clamp percentage
 
             percentMatrices.append(percentageMatrix)
@@ -239,20 +260,52 @@ class TSDataManager:
             #     print(row)
             # print("\n")
 
-
-        if n==1:
+        if n == 1:
             return percentMatrices[0]
         else:
             return percentMatrices
 
+        # print("Percentage: ", percentageMatrix)
+
+    def convertMatricesAsPercentagesByIDFilteringTimeStamps(self, ID, matrices):
+        fullCalibrationMatrix = self.getFullCalibrationMatrix(ID)
+        emptyCalibrationMatrix = self.getEmptyCalibrationMatrix(ID)
+
+        targetMatrices = []
+        for m in matrices:
+            targetMatrices.append(m[0])
+
+        # print("convertMatricesAsPercentagesByID target matrices: ", targetMatrices)
 
 
+        percentMatrices = []
 
-        #print("Percentage: ", percentageMatrix)
+        for matrix in targetMatrices:
 
-    def getProductListAsString(self, ID):
+            percentageMatrix = copy.deepcopy(fullCalibrationMatrix)
+            for y in range(len(fullCalibrationMatrix)):
+                for x in range(len(fullCalibrationMatrix[0])):
+                    # calculate percentage from lasts sensor reading against calibration values
+                    calibrationDifference = abs(fullCalibrationMatrix[y][x] - emptyCalibrationMatrix[y][x])
+                    if calibrationDifference < 10:
+                        percentageMatrix[y][x] = -1
+                    else:
+                        targetDifference = matrix[y][x] - emptyCalibrationMatrix[y][x]
+                        absolutePercentage = int(abs((targetDifference / (
+                                calibrationDifference + 0.1)) * 100))  # calculate percentage and clean up to int
+                        percentageMatrix[y][x] = max(min(absolutePercentage, 100), 0)  # clamp percentage
+
+            percentMatrices.append(percentageMatrix)
+
+        if len(matrices) == 1:
+            return percentMatrices[0]
+        else:
+            return percentMatrices
+
+        # print("Percentage: ", percentageMatrix)
+
+    def getProductList(self, ID):
         sql = f"SELECT product FROM plankconfigurations WHERE ID = '{ID}'"
-
 
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
@@ -265,7 +318,7 @@ class TSDataManager:
     def setProductList(self, ID, productlist):
         sql = f"""
                 UPDATE plankconfigurations
-                SET product = '{str(productlist).replace("'",'"')}'
+                SET product = '{str(productlist).replace("'", '"')}'
                 WHERE ID = '{ID}'
                     """
 

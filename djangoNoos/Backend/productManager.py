@@ -20,7 +20,7 @@ def updateProducts(request):
                 return JsonResponse({}, status=200)
 
             elif incomingType == 'load':
-                outgoingProductList = data.getProductListAsString(incomingAsDict['ID'])
+                outgoingProductList = data.getProductList(incomingAsDict['ID'])
                 print("outgoing:", outgoingProductList)
                 if outgoingProductList == "undefined":
                     outgoingProductList = "[]"
